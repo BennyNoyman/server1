@@ -34,6 +34,12 @@ app.delete('/:id', (req, res) => {
     users.splice(req.params.id, 1);
     res.status(200).json(users);
 })
+app.post("/login", (req, res) => {
+    users.forEach(user => {
+        if (req.body.email === user.email && req.body.password === user.password) res.status(200).send(`User is connected`);
+        res.status(400).send(`wrong credentials`);
+    })
+})
 app.listen(port, () => {
     console.log(`Server is up and running on port:${port}`);
 })
