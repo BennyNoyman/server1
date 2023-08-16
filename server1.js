@@ -3,11 +3,20 @@ const cors = require('cors');
 const morgan = require('morgan');
 const {v4: gen} = require('uuid');
 const bcrypt = require('bcrypt');
+const {isEmail: validEmail} = require('validator');
+const {isStrongPassword: validPassword} = require('validator');
 const app = express();
 const port = 3000;
-async function cryptMw(req, res, next) {
+function cryptMw(req, res, next) {
     req.body.password = bcrypt.hashSync(req.body.password, 5)
     next();
+}
+function validate(req, res, next) {
+    if (validEmail(req.body.email) && validPassword(req.body.password)) {
+        next();
+    }else{
+        res.status(400).send(`invalid email or password`);
+    }
 }
 const users =
     [{id: gen(), email: 'ewef@gmail.com', password: 're45fea'},
@@ -28,10 +37,10 @@ app.get('/:id', (req, res) => {
 app.get('/', (req, res) => {
     res.status(200).json(users);
 })
-app.post("/", cryptMw, (req, res) => {
-    req.body.id = gen();
-    users.push(req.body);
-    res.status(200).json(users);
+app.post("/", validate, cryptMw, (req, res) => {
+        req.body.id = gen();
+        users.push(req.body);
+        res.status(200).json(users);
 })
 app.put('/:id', cryptMw, (req, res) => {
     const user = users.find(user => user.id === req.params.id);
