@@ -19,7 +19,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.get('/:id', (req, res) => {
     const user = users.find(user => user.id === req.params.id);
-    res.status(200).json(user);
+    if (user) {
+        res.status(200).json(user);
+    }else{
+        res.status(400).send('user not found');
+    }
 })
 app.get('/', (req, res) => {
     res.status(200).json(users);
