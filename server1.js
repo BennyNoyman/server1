@@ -35,23 +35,24 @@ app.post("/", cryptMw, (req, res) => {
 })
 app.put('/:id', cryptMw, (req, res) => {
     const user = users.find(user => user.id === req.params.id);
-    if (req.body.email) user.email = req.body.email;
-    if (req.body.password) user.password = req.body.password;
+    if (req.body.email)
+        user.email = req.body.email;
+    if (req.body.password)
+        user.password = req.body.password;
     res.status(200).json(user);
 })
 app.delete('/:id', (req, res) => {
-    users.splice(req.params.id, 1);
+    const userIndex = users.findIndex(user => req.params.id === user.id);
+    users.splice(userIndex, 1);
     res.status(200).json(users);
 })
 app.post("/login", (req, res) => {
-    let found = false;
-    users.forEach(user => {
-        if (req.body.email === user.email && bcrypt.compareSync(req.body.password, user.password)) {
-            found = true;
-            return res.status(200).send(`User is connected`);
-        }
-    })
-    if (!found) res.status(400).send(`wrong credentials`);
+    let user = users.find(user => req.body.email === user.email)
+    if ( user && bcrypt.compareSync(req.body.password, user.password)) {
+        res.status(200).send(`User is connected`);
+    }else {
+        res.status(400).send(`wrong credentials`);
+    }
 })
 app.listen(port, () => {
     console.log(`Server is up and running on port:${port}`);
